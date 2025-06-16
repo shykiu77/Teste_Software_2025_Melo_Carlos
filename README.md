@@ -2,6 +2,7 @@
 
 **Equipe:**  
 - Carlos Melo 
+- José Batista Neto
 - Roberdan Tamyr  
 - Arthur Matheus 
 
