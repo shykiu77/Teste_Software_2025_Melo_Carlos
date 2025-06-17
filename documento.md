@@ -1,27 +1,29 @@
-# Atividade 1: Análise de Problema e Solução em PLN com NLTK e Codificações de Arquivo
+# Atividade 1: [Tokenizing unicode using nltk](https://stackoverflow.com/questions/9228202/tokenizing-unicode-using-nltk)
 
 **Disciplina:** Processamento de Linguagem Natural  
 **Instituição:** Universidade Federal de Sergipe
 
 ## Equipe
 
-  * José Batista 
-  * Carlos Melo
-  * Roberdan Tamyr
-  * Arthur Matheus
+- José Batista
+- Carlos Melo
+- Roberdan Tamyr
+- Arthur Matheus
 
 ## Sumário
 
-  - [1. Introdução](#1-introdução)
-  - [2. Análise do Problema](#2-análise-do-problema)
-      - [2.1. Configuração do Ambiente](#21-configuração-do-ambiente)
-      - [2.2. Reprodução do Erro](#22-reprodução-do-erro)
-  - [3. Aplicação da Solução Proposta](#3-aplicação-da-solução-proposta)
-  - [4. Análise da Solução](#4-análise-da-solução)
-  - [5. Conclusão](#5-conclusão)
-  - [6. Referências](#6-referências)
+- [1. Introdução](#1-introdução)
+- [2. Análise do Problema](#2-análise-do-problema)
+  - [2.1. Configuração do Ambiente](#21-configuração-do-ambiente)
+  - [2.2. Reprodução do Erro](#22-reprodução-do-erro)
+- [3. Aplicação da Solução Proposta](#3-aplicação-da-solução-proposta)
+- [4. Análise da Solução](#4-análise-da-solução)
+- [5. Conclusão](#5-conclusão)
+- [6. Referências](#6-referências)
+- [7. Repositório](#7-repositório)
+- [8. Participação](#8-participação)
 
------
+---
 
 ## 1\. Introdução
 
@@ -31,7 +33,7 @@ O objetivo é descrever o problema, reproduzi-lo em um ambiente de desenvolvimen
 
 O problema central abordado é como o tokenizador `nltk.word_tokenize` pode incluir o caractere BOM (`\ufeff`) como parte do primeiro token se o arquivo não for lido de maneira a remover ou interpretar corretamente este caractere. Este cenário é comum quando arquivos de texto são salvos com a codificação `utf-8-sig`, que prefixa o conteúdo com um BOM.
 
------
+---
 
 ## 2\. Análise do Problema
 
@@ -100,21 +102,12 @@ if os.path.exists(nome_arquivo):
 
 **Saída Esperada do Código:**
 
-> **Atenção:** Insira abaixo um print de tela da sua IDE ou terminal mostrando o código e a sua respectiva saída incorreta.
->
-> *Substitua esta imagem e o link pelo seu próprio print de tela.*
->
-> ```
-> Texto lido (com BOM no início): '\ufeffmüsli pöök rääk'
->
-> Resultado da tokenização com NLTK (incorreto):
-> ['\ufeffmüsli', 'pöök', 'rääk']
-> ```
+![Problema original](./imgs/problema_original.png)
 
 **Análise da Saída Incorreta:**
 A saída `['\ufeffmüsli', 'pöök', 'rääk']` demonstra claramente a falha. O primeiro token, "müsli", está prefixado com o caractere BOM `\ufeff`. Isso ocorre porque a leitura padrão do arquivo com `encoding='utf-8'` não lidou com o BOM introduzido pela escrita com `encoding='utf-8-sig'`.
 
------
+---
 
 ## 3\. Aplicação da Solução Proposta
 
@@ -156,45 +149,37 @@ if os.path.exists(nome_arquivo):
 
 **Saída Esperada do Código Corrigido:**
 
-> **Atenção:** Insira abaixo um print de tela da sua IDE ou terminal mostrando o código da solução e sua respectiva saída correta.
->
-> *Substitua esta imagem e o link pelo seu próprio print de tela.*
->
-> ```
-> Texto lido (sem BOM no início): 'müsli pöök rääk'
->
-> Resultado da tokenização com NLTK (correto):
-> ['müsli', 'pöök', 'rääk']
-> ```
+![Solução do Problema](./imgs/solucao_problema.png)
 
 **Análise da Saída Correta:**
 A saída agora é `['müsli', 'pöök', 'rääk']`. O primeiro token está correto, sem o prefixo BOM. Isso demonstra que ler o arquivo utilizando `codecs.open(..., encoding='utf-8-sig')` resolve o problema de forma limpa e eficiente, fornecendo ao tokenizador um texto limpo.
 
------
+---
 
 ## 4\. Análise da Solução
 
 A solução que utiliza `codecs.open()` com `encoding='utf-8-sig'` é a mais apropriada para este cenário específico por diversos motivos:
 
-  - **Tratamento Específico do BOM:** A codificação `'utf-8-sig'` é projetada para, na leitura, identificar e remover o BOM UTF-8. Na escrita, ela adiciona o BOM. Usá-la na leitura de arquivos que podem ter sido escritos com ela é a forma canônica de lidar com o BOM.
+- **Tratamento Específico do BOM:** A codificação `'utf-8-sig'` é projetada para, na leitura, identificar e remover o BOM UTF-8. Na escrita, ela adiciona o BOM. Usá-la na leitura de arquivos que podem ter sido escritos com ela é a forma canônica de lidar com o BOM.
 
-  - **Simplicidade e Clareza:** A solução é direta e não requer manipulação manual da string para remover o BOM (por exemplo, `text.lstrip('\ufeff')`). Isso torna o código mais legível e menos propenso a erros.
+- **Simplicidade e Clareza:** A solução é direta e não requer manipulação manual da string para remover o BOM (por exemplo, `text.lstrip('\ufeff')`). Isso torna o código mais legível e menos propenso a erros.
 
-  - **Robustez:** Confiar no módulo `codecs` para lidar com as nuances das codificações é geralmente mais robusto do que implementar lógicas de detecção ou remoção de BOM manualmente.
+- **Robustez:** Confiar no módulo `codecs` para lidar com as particularidades da codificação é geralmente mais robusto do que implementar lógicas de detecção ou remoção de BOM manualmente.
 
 Outras abordagens poderiam ser consideradas, mas são menos ideais:
 
-  - **Alternativa 1: Remoção Manual do BOM**
-      - *Sugestão:* Ler o arquivo com `open(..., encoding='utf-8')` e, se o BOM estiver presente, removê-lo da string: `if texto.startswith('\ufeff'): texto = texto[1:]`.
-      - *Motivo da Inferioridade:* Embora funcional, adiciona lógica extra ao código. A solução com `codecs.open()` é mais idiomática para este problema específico de codificação. Além disso, a detecção manual pode ser falha se outras variantes de BOM ou problemas de codificação estiverem presentes.
+- **Alternativa 1: Remoção Manual do BOM**
 
-  - **Alternativa 2: Sempre Salvar sem BOM**
-      - *Sugestão:* Garantir que todos os arquivos sejam salvos com `encoding='utf-8'` (que não adiciona BOM) em vez de `utf-8-sig`.
-      - *Motivo da Inferioridade (como solução única):* Nem sempre se tem controle sobre como os arquivos de entrada foram gerados. Uma solução robusta de leitura deve ser capaz de lidar com arquivos que *possam* conter um BOM. No entanto, padronizar a escrita para `utf-8` (sem BOM) é uma boa prática quando possível.
+  - _Sugestão:_ Ler o arquivo com `open(..., encoding='utf-8')` e, se o BOM estiver presente, removê-lo da string: `if texto.startswith('\ufeff'): texto = texto[1:]`.
+  - _Motivo da Inferioridade:_ Embora funcional, adiciona lógica extra ao código. A solução com `codecs.open()` é mais idiomática para este problema específico de codificação. Além disso, a detecção manual pode ser falha se outras variantes de BOM ou problemas de codificação estiverem presentes.
+
+- **Alternativa 2: Sempre Salvar sem BOM**
+  - _Sugestão:_ Garantir que todos os arquivos sejam salvos com `encoding='utf-8'` (que não adiciona BOM) em vez de `utf-8-sig`.
+  - _Motivo da Inferioridade (como solução única):_ Nem sempre se tem controle sobre como os arquivos de entrada foram gerados. Uma solução robusta de leitura deve ser capaz de lidar com arquivos que _possam_ conter um BOM. No entanto, padronizar a escrita para `utf-8` (sem BOM) é uma boa prática quando possível.
 
 A solução com `codecs.open(..., encoding='utf-8-sig')` é, portanto, ideal por ser **específica para o problema, limpa, robusta e alinhada com as práticas padrão de manipulação de codificação em Python.**
 
------
+---
 
 ## 5\. Conclusão
 
@@ -202,10 +187,23 @@ Este trabalho demonstrou na prática um desafio relacionado à manipulação de 
 
 O principal aprendizado é a importância de compreender como diferentes codificações (como `utf-8` vs. `utf-8-sig`) afetam o conteúdo dos arquivos e como utilizar as ferramentas corretas, como o módulo `codecs`, para ler dados textuais de forma confiável. A solução adotada não apenas resolveu o problema técnico, mas também representa uma boa prática para lidar com variações de codificação de forma robusta, garantindo que os dados de entrada para as ferramentas de PLN estejam limpos e corretos.
 
------
+---
 
 ## 6\. Referências
 
-  - Python Software Foundation. *codecs — Codec registry and base classes*. Documentação Oficial do Python 3. Disponível em: [https://docs.python.org/3/library/codecs.html](https://docs.python.org/3/library/codecs.html).
-  - NLTK Project. *NLTK 3.8.1 documentation*. Disponível em: [https://www.nltk.org/](https://www.nltk.org/).
-  - Wikipedia. *Byte Order Mark (BOM)*. Disponível
+- Python Software Foundation. _codecs — Codec registry and base classes_. Documentação Oficial do Python 3. Disponível em: [https://docs.python.org/3/library/codecs.html](https://docs.python.org/3/library/codecs.html).
+- NLTK Project. _NLTK 3.8.1 documentation_. Disponível em: [https://www.nltk.org/](https://www.nltk.org/).
+- Wikipedia. _Byte Order Mark (BOM)_. Disponível em: [https://en.wikipedia.org/wiki/Byte_order_mark](https://en.wikipedia.org/wiki/Byte_order_mark)
+- https://stackoverflow.com/questions/9228202/tokenizing-unicode-using-nltk
+
+## 7\. Repositório
+
+**Repositório GitHub:**
+
+- https://github.com/shykiu77/Teste_Software_2025_Melo_Carlos
+- https://github.com/JoseBatistaCN/Teste_Software_2025_Melo_Carlos
+
+## 8\. Participação
+
+- Carlos Melo: Implementação do código, revisão do documento e gravação do vídeo
+- José Batista Neto: Escrita do documento e revisão das perguntas não aceitas
